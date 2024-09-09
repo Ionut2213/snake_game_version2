@@ -113,6 +113,7 @@ def game_over():
     exit_button.pack(pady=10)
     canvas.create_window(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 120, window=exit_button)
 
+    # Butonul pentru Select Level
 
 def reset_game():
     global score, snake, food, direction
