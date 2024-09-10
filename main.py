@@ -1,14 +1,18 @@
+# Import Part
+
 from tkinter import *
 import random
 
+# Global variables
+
 GAME_WIDTH = 700
 GAME_HEIGHT = 700
-SPEED = 90
 SPACE_SIZE = 50
 BODY_PARTS = 3
 SNAKE_COLOR = '#00FF00'
 FOOD_COLOR = '#FF0000'
 BACKGROUND_COLOR = '#000000'
+LEVEL_SPEED = {'Easy': 130, 'Medium': 95 , 'Hard': 70}
 
 
 class Snake:
@@ -102,18 +106,10 @@ def game_over():
     canvas.delete(ALL)
     canvas.create_text(canvas.winfo_width() / 2, canvas.winfo_height() / 2 - 50, font=('consolas', 70), 
                        text='Game Over', fill='red', tag='gameover')
+    
+    window.after(2000, start_screen)
 
-    # Butonul pentru New Game
-    new_game_button = Button(window, text="New Game", command=reset_game, font=('consolas', 20))
-    new_game_button.pack(pady=10)
-    canvas.create_window(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 50, window=new_game_button)
 
-    # Butonul pentru Exit
-    exit_button = Button(window, text="Exit", command=window.quit, font=('consolas', 20))
-    exit_button.pack(pady=10)
-    canvas.create_window(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 120, window=exit_button)
-
-    # Butonul pentru Select Level
 
 def reset_game():
     global score, snake, food, direction
@@ -129,18 +125,63 @@ def reset_game():
     food = Food()
 
 
-    countdown(3)
+    countdown(5)
+
+def select_level(level):
+    global SPEED
+    SPEED = LEVEL_SPEED[level]
+    canvas.delete("level")
+    canvas.delete("level_buttons")
+    canvas.create_text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 50, text = f"Level: {level}", font = ('consolas', 40), fill='white')
+    start_screen()
+
+
+def display_level_selection():
+    canvas.delete(ALL)
+    canvas.create_text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 100, text="Select level", font=("consolas", 40), fill="white", tag= "level")
+
+    levels = ['Easy', 'Medium', 'Hard']
+
+    for i, level in enumerate(levels):
+        button = Button(window, text =level, command=lambda l=level : select_level(l), font = ("consolas", 20))
+        canvas.create_window(GAME_WIDTH / 2, GAME_HEIGHT / 2 + i * 50, window=button, tag="level buttons")
 
 
 def countdown(count):
     if count > 0:
         canvas.delete("countdown")
-        canvas.create_text(canvas.winfo_width() / 2, canvas.winfo_height() / 2, font=('consolas', 50),
+        canvas.create_text(canvas.winfo_width() / 2, canvas.winfo_height() / 2, font=('consolas', 20),
                            text=str(count), fill='white', tag='countdown')
         window.after(1000, countdown, count - 1)
     else:
         canvas.delete("countdown")
         next_turn(snake, food)
+
+def start_game():
+    canvas.delete(ALL)
+    reset_game()
+
+def start_screen():
+    canvas.delete(ALL)
+
+    # Buton joc nou
+
+    new_game_button = Button(window, text = "New Game", command = start_game, font = ("consolas", 20))
+    new_game_button.pack(pady=10)
+    canvas.create_window(GAME_WIDTH / 2 , GAME_HEIGHT / 2, window= new_game_button)
+
+    #Buton pentru select level
+
+    select_level_button = Button(window, text = "Select Dificulty", command = display_level_selection, font = ("consolas", 20))
+    select_level_button.pack(pady=10)
+    canvas.create_window(GAME_WIDTH / 2 , GAME_HEIGHT / 2 + 70, window = select_level_button)
+
+
+    #Button pentru exit
+
+    exit_button = Button(window, text = "Exit", command = window.quit, font = ("consolas", 20))
+    exit_button.pack(pady=10)
+    canvas.create_window(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 140, window = exit_button)
 
 
 window = Tk()
@@ -149,6 +190,10 @@ window.resizable(False, False)
 
 score = 0
 direction = 'down'
+
+#Standard Difficulty
+SPEED = LEVEL_SPEED['Medium']
+
 
 label = Label(window, text="Score:{}".format(score), font=('consolas', 40))
 label.pack()
@@ -172,9 +217,6 @@ window.bind('<Right>', lambda event: change_direction('right'))
 window.bind('<Up>', lambda event: change_direction('up'))
 window.bind('<Down>', lambda event: change_direction('down'))
 
-snake = Snake()
-food = Food()
-
-countdown(3)
+start_screen()
 
 window.mainloop()
